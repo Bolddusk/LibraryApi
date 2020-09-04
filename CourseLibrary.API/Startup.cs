@@ -1,14 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using CourseLibrary.API.DbContexts;
+using CourseLibrary.API.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace CourseLibrary.API
 {
@@ -24,7 +23,25 @@ namespace CourseLibrary.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+           services.AddControllers(setupAction=>
+           {
+               // won't return json if requested any other content
+               // will return 406 - Not Acceptable
+               setupAction.ReturnHttpNotAcceptable = true;
+               // To add support for XMl
+               //setupAction.OutputFormatters.Add(
+               //    new XmlDataContractSerializerOutputFormatter());
+               // Or directly add to addcontrollers().
+
+           }).AddXmlDataContractSerializerFormatters();
+             
+            services.AddScoped<ICourseLibraryRepository, CourseLibraryRepository>();
+
+            services.AddDbContext<CourseLibraryContext>(options =>
+            {
+                options.UseSqlServer(
+                    @"Server=(localdb)\mssqllocaldb;Database=CourseLibraryDB;Trusted_Connection=True;");
+            }); 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -36,7 +53,7 @@ namespace CourseLibrary.API
             }
 
             app.UseRouting();
-
+            
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
