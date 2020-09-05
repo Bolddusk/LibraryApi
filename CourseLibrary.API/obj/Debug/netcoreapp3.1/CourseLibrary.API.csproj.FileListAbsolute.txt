@@ -56,4 +56,6 @@ C:\Users\Humza\source\repos\CourseLibrary\CourseLibrary.API\bin\Debug\netcoreapp
 C:\Users\Humza\source\repos\CourseLibrary\CourseLibrary.API\bin\Debug\netcoreapp3.1\runtimes\win\lib\netcoreapp2.0\System.Runtime.Caching.dll
 C:\Users\Humza\source\repos\CourseLibrary\CourseLibrary.API\bin\Debug\netcoreapp3.1\runtimes\win\lib\netstandard2.0\System.Security.Cryptography.ProtectedData.dll
 C:\Users\Humza\source\repos\CourseLibrary\CourseLibrary.API\bin\Debug\netcoreapp3.1\Microsoft.EntityFrameworkCore.Design.dll
+C:\Users\Humza\source\repos\CourseLibrary\CourseLibrary.API\bin\Debug\netcoreapp3.1\AutoMapper.dll
+C:\Users\Humza\source\repos\CourseLibrary\CourseLibrary.API\bin\Debug\netcoreapp3.1\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
 C:\Users\Humza\source\repos\CourseLibrary\CourseLibrary.API\obj\Debug\netcoreapp3.1\CourseLibrary.API.MvcApplicationPartsAssemblyInfo.cache
