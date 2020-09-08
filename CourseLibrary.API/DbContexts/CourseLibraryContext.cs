@@ -1,5 +1,6 @@
 ﻿using CourseLibrary.API.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 
 namespace CourseLibrary.API.DbContexts
@@ -16,6 +17,7 @@ namespace CourseLibrary.API.DbContexts
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            
             // seed the database with dummy data
             modelBuilder.Entity<Author>().HasData(
                 new Author()
@@ -108,6 +110,12 @@ namespace CourseLibrary.API.DbContexts
                );
 
             base.OnModelCreating(modelBuilder);
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+            optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
         }
     }
 }
