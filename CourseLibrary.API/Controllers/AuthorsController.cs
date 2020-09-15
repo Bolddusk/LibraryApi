@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace CourseLibrary.API.Controllers
@@ -27,7 +28,7 @@ namespace CourseLibrary.API.Controllers
             _mapper = mapper ??
                 throw new ArgumentNullException(nameof(mapper));
         }
-        [HttpGet]
+        [HttpGet(Name = "GetAuthors")]
         [HttpHead]
         public ActionResult<IEnumerable<AuthorDto>> GetAuthors(
             [FromQuery]AuthorResourceParameters authorResourceParameters)
@@ -43,6 +44,27 @@ namespace CourseLibrary.API.Controllers
             //        Age = author.DateOfBirth.GetCurrentAge()
             //    });
             //}
+
+            var previousPageLink = AuthorsFromRepo.HasPrevious ?
+                CreateAuthorsResourceUri(authorResourceParameters,
+                ResourceUriType.PreviousPage) : null;
+            var nextPageLink = AuthorsFromRepo.HasNext ?
+                CreateAuthorsResourceUri(authorResourceParameters,
+                ResourceUriType.NextPage) : null;
+
+            var paginationMetaData = new
+            { 
+                totalCount = AuthorsFromRepo.TotalCount,
+                pageSize = AuthorsFromRepo.PageSize,
+                totalPages = AuthorsFromRepo.TotalPages,
+                currentPage = AuthorsFromRepo.CurrentPage,
+                previousPageLink = previousPageLink,
+                nextPageLink = nextPageLink
+            };
+
+            Response.Headers.Add("X-Pagination",
+                JsonSerializer.Serialize(paginationMetaData));
+
             return Ok(_mapper.Map<IEnumerable<AuthorDto>>(AuthorsFromRepo));
         }
         [HttpGet("{id:guid}",Name ="GetAuthor")]
@@ -74,11 +96,58 @@ namespace CourseLibrary.API.Controllers
 
         }
 
+        [HttpDelete("{authorId}")]
+        public ActionResult DeleteAuthor(Guid authorId)
+        {
+            var authorFromRepo = _courseLibraryRepository.GetAuthor(authorId);
+            if (authorFromRepo == null)
+                return NotFound();
+
+            _courseLibraryRepository.DeleteAuthor(authorFromRepo);
+            _courseLibraryRepository.Save();
+
+            return NoContent();
+        }
+
         [HttpOptions]
         public IActionResult GetAuthorsOption()
         {
             Response.Headers.Add("Allow", "GET,OPTIONS,POST");
             return Ok();
+        }
+
+        private string CreateAuthorsResourceUri(
+            AuthorResourceParameters authorResourceParameters,
+            ResourceUriType type
+            )
+        {
+            switch (type)
+            {
+                case ResourceUriType.PreviousPage:
+                    return Url.Link("GetAuthors",
+                        new
+                        {
+                            pageNumber = authorResourceParameters.PageNumber - 1,
+                            pageSize = authorResourceParameters.PageSize,
+                            mainCategory = authorResourceParameters.mainCategory,
+                            searchQuery = authorResourceParameters.searchQuery
+                        });
+                case ResourceUriType.NextPage:
+                    return Url.Link("GetAuthors",
+                        new {
+                            pageNumber = authorResourceParameters.PageNumber + 1,
+                            pageSize = authorResourceParameters.PageSize,
+                            mainCategory = authorResourceParameters.mainCategory,
+                            searchQuery = authorResourceParameters.searchQuery
+                    });
+                default:
+                    return Url.Link("GetAuthors",new {
+                        pageNumber = authorResourceParameters.PageNumber,
+                        pageSize = authorResourceParameters.PageSize,
+                        mainCategory = authorResourceParameters.mainCategory,
+                        searchQuery = authorResourceParameters.searchQuery
+                    });
+            }    
         }
     }
 }
