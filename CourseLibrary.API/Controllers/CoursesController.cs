@@ -30,7 +30,7 @@ namespace CourseLibrary.API.Controllers
                 throw new ArgumentNullException(nameof(mapper));
         }
 
-        [HttpGet]
+        [HttpGet(Name ="GetCoursesForAuthor")]
         public ActionResult<IEnumerable<CourseDto>> GetCourses(Guid authorId)
         {
             if (!ModelState.IsValid)
@@ -57,7 +57,7 @@ namespace CourseLibrary.API.Controllers
             return Ok(_mapper.Map<CourseDto>(courseFromRepo));
         }
 
-        [HttpPost]
+        [HttpPost(Name ="CreateCourseForAuthor")]
         public IActionResult CreateCourseForAuthor(Guid authorId
             , CourseForCreationDto course)
         {
